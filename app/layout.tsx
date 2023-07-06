@@ -1,7 +1,11 @@
+import React from "react";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import Header from "@/app/Header";
+import { ThirdwebProvider } from "@thirdweb-dev/react";
+import { Sepolia } from "@thirdweb-dev/chains";
+import Providers from "@/app/(store)/Provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,29 +22,32 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex flex-row lg:flex-col">
-          <Header
-            pages={[
-              {
-                text: "Home",
-                link: "/home",
-              },
-              {
-                text: "Suspense",
-                link: "/suspense",
-              },
-              {
-                text: "Counter",
-                link: "/counter",
-              },
-              {
-                text: "Products",
-                link: "/products",
-              },
-            ]}
-          />
-          <div>{children}</div>
-        </div>
+        <Providers>
+          <div className="flex flex-row lg:flex-col">
+            <Header
+              pages={[
+                {
+                  text: "Home",
+                  link: "/home",
+                },
+                {
+                  text: "Suspense",
+                  link: "/suspense",
+                },
+                {
+                  text: "Counter",
+                  link: "/counter",
+                },
+                {
+                  text: "Products",
+                  link: "/products",
+                },
+              ]}
+              showWallet
+            />
+            <div>{children}</div>
+          </div>
+        </Providers>
       </body>
     </html>
   );
