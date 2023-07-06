@@ -8,7 +8,7 @@ import { ThirdwebProvider } from "@thirdweb-dev/react";
 
 type Props = {
   pages: Array<{ text: string; link: string }>;
-  showWallet: boolean;
+  showWallet?: boolean;
 };
 
 export default function Header({ pages, showWallet }: Props) {
