@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import Link from "next/link";
+import Header from "@/app/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,18 +19,27 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div className="flex flex-row lg:flex-col">
-          <div className="flex h-screen flex-col space-y-4 border-r-2 border-r-orange-500 p-4 lg:h-auto lg:flex-row lg:space-x-4 lg:space-y-0 lg:border-b-2 lg:border-r-0 lg:border-b-orange-500">
-            {[1, 2, 3, 4].map((productNumber) => (
-              <Link
-                key={productNumber}
-                href={`/products/${productNumber}`}
-                className="hover:text-orange-500"
-              >
-                Product {productNumber}
-              </Link>
-            ))}
-          </div>
-          <div className="p-4">{children}</div>
+          <Header
+            pages={[
+              {
+                text: "Home",
+                link: "/home",
+              },
+              {
+                text: "Suspense",
+                link: "/suspense",
+              },
+              {
+                text: "Counter",
+                link: "/counter",
+              },
+              {
+                text: "Products",
+                link: "/products",
+              },
+            ]}
+          />
+          <div>{children}</div>
         </div>
       </body>
     </html>

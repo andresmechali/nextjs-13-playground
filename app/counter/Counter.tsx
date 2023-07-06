@@ -6,7 +6,7 @@ export default function Counter() {
   return (
     <div className="flex flex-col space-y-4">
       <div>
-        Count: <span className="underline">{count}</span>
+        Count: <span>{count}</span>
       </div>
       <div className="flex flex-row space-x-4">
         <button

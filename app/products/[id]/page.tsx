@@ -1,9 +1,9 @@
 type Props = {
-    params: {
-        id: string;
-    }
-}
+  params: {
+    id: string;
+  };
+};
 
 export default function ProductPage({ params: { id } }: Props) {
-    return <div>Product {id}</div>
+  return <div className="p-4">Product {id}</div>;
 }
