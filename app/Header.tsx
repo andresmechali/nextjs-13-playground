@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import SignInButton from "@/app/SignIn";
+import AddressButton from "@/app/SignIn";
 import { Sepolia } from "@thirdweb-dev/chains";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 
@@ -30,7 +30,7 @@ export default function Header({ pages, showWallet }: Props) {
             </Link>
           ))}
         </div>
-        {showWallet && <SignInButton />}
+        {showWallet && <AddressButton />}
       </div>
     </ThirdwebProvider>
   );
