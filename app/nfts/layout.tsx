@@ -3,11 +3,22 @@
 import React from "react";
 import { Sepolia } from "@thirdweb-dev/chains";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
+import Header from "@/app/Header";
 
 export default function ContractLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <ThirdwebProvider activeChain={Sepolia}>{children}</ThirdwebProvider>;
+  return (
+    <ThirdwebProvider activeChain={Sepolia}>
+      <Header
+        pages={["Buy", "Sell"].map((action) => ({
+          text: action,
+          link: `/nfts/${action.toLowerCase()}`,
+        }))}
+      />
+      {children}
+    </ThirdwebProvider>
+  );
 }

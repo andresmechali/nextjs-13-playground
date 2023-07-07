@@ -40,11 +40,11 @@ export default function RootLayout({
                 },
                 {
                   text: "Products",
-                  link: "/products",
+                  link: "/products/1",
                 },
                 {
                   text: "NFTs",
-                  link: "/nfts",
+                  link: "/nfts/buy",
                 },
               ]}
               showWallet

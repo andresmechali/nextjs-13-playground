@@ -22,7 +22,7 @@ export default function Header({ pages, showWallet }: Props) {
               key={text}
               href={link}
               className={`hover:text-orange-500${
-                link === pathname ? " text-orange-500" : ""
+                pathname.startsWith(link) ? " text-orange-500" : ""
               }`}
             >
               {text}
