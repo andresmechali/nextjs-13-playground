@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import AddressButton from "@/app/SignIn";
 import { Sepolia } from "@thirdweb-dev/chains";
-import { ThirdwebProvider } from "@thirdweb-dev/react";
+import { ConnectWallet, ThirdwebProvider } from "@thirdweb-dev/react";
 
 type Props = {
   pages: Array<{ text: string; link: string }>;
@@ -30,7 +29,11 @@ export default function Header({ pages, showWallet }: Props) {
             </Link>
           ))}
         </div>
-        {showWallet && <AddressButton />}
+        {showWallet && (
+          <ConnectWallet
+            style={{ backgroundColor: "black", color: "white", border: "none" }}
+          />
+        )}
       </div>
     </ThirdwebProvider>
   );
