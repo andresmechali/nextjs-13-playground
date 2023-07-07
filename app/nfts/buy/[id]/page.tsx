@@ -6,6 +6,7 @@ import {
   useMetadata,
   useNFT,
   useValidDirectListings,
+  Web3Button,
 } from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS, NFT_COLLECTION_ADDRESS } from "@/constants";
 
@@ -33,12 +34,27 @@ export default function Page({ params: { id } }: Props) {
       tokenId: id,
     });
 
+  async function buyListing() {
+    let txResult;
+
+    if (directListing?.[0]) {
+      txResult = await marketplace?.directListings?.buyFromListing(
+        directListing[0].id,
+        1
+      );
+    } else {
+      throw new Error("No listing found");
+    }
+
+    return txResult;
+  }
+
   return (
-    <div>
+    <div className="p-4">
       {loadingMarketplace || loadingDirectListing ? (
         <span>Loading...</span>
       ) : nftData ? (
-        <div className="flex flex-row gap-4 p-4">
+        <div className="flex flex-row gap-4">
           <section className="flex flex-1 flex-col gap-4">
             <ThirdwebNftMedia metadata={nftData.metadata} width="100%" />
             <span className="mb-4 font-bold">Description:</span>
@@ -97,7 +113,7 @@ export default function Page({ params: { id } }: Props) {
                   {nftData.owner.slice(0, 7)}...
                   {nftData.owner.slice(nftData.owner.length - 5)}
                 </span>
-                <div className="rounded-sm border-2 p-4">
+                <div className="mb-4 rounded-sm border-2 p-4">
                   <h2 className="mb-2 font-light text-gray-500">Price:</h2>
                   {directListing?.[0] ? (
                     <span className="font-3xl mb-4 font-bold">
@@ -108,6 +124,17 @@ export default function Page({ params: { id } }: Props) {
                     <span className="font-3xl font-bold">Not for sale</span>
                   )}
                 </div>
+                <Web3Button
+                  contractAddress={MARKETPLACE_ADDRESS}
+                  action={async () => {
+                    await buyListing();
+                    console.log("bought successfully");
+                    // TODO: show notification
+                  }}
+                  isDisabled={!directListing || !directListing[0]}
+                >
+                  Buy at asking price
+                </Web3Button>
               </div>
             ) : (
               <span>Contract data not found</span>
