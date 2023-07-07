@@ -9,13 +9,14 @@ import {
   Web3Button,
 } from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS, NFT_COLLECTION_ADDRESS } from "@/constants";
+import { removeSnakeCase, renderDescription } from "@/app/nfts/utils";
+import NFTDescription from "@/app/nfts/Description";
 
 type Props = {
   params: { id: string };
 };
 
 export default function Page({ params: { id } }: Props) {
-  const [viewAllDescription, setViewAllDescription] = useState<boolean>(false);
   const { contract: marketplace, isLoading: loadingMarketplace } = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace-v3"
@@ -26,7 +27,10 @@ export default function Page({ params: { id } }: Props) {
   const { data: nftContractMetadata, isLoading: loadingNftContractMetadata } =
     useMetadata(nftCollection);
 
-  const { data: nftData } = useNFT(nftCollection, id);
+  const { data: nftData, isLoading: loadingNFTData } = useNFT(
+    nftCollection,
+    id
+  );
 
   const { data: directListing, isLoading: loadingDirectListing } =
     useValidDirectListings(marketplace, {
@@ -55,40 +59,7 @@ export default function Page({ params: { id } }: Props) {
         <span>Loading...</span>
       ) : nftData ? (
         <div className="flex flex-row gap-4">
-          <section className="flex flex-1 flex-col gap-4">
-            <ThirdwebNftMedia metadata={nftData.metadata} width="100%" />
-            <span className="mb-4 font-bold">Description:</span>
-            {renderDescription(
-              nftData.metadata.description,
-              viewAllDescription
-            )}
-            {nftData.metadata.description?.length &&
-              nftData.metadata.description.length > 200 && (
-                <div className="flex justify-start">
-                  <button
-                    className="justify-items-start text-sm text-gray-500 hover:text-orange-500"
-                    onClick={() => {
-                      setViewAllDescription((prev) => !prev);
-                    }}
-                  >
-                    View {viewAllDescription ? "less" : "more"}
-                  </button>
-                </div>
-              )}
-            <span className="font-bold">Traits:</span>
-            {nftData.metadata.attributes &&
-              nftData.metadata.attributes.map((attribute) => (
-                <div
-                  key={`${nftData.metadata.id}/${attribute.trait_type}`}
-                  className="rounded-sm border-2 border-white p-4"
-                >
-                  <span className="font-light text-gray-500">
-                    {removeSnakeCase(attribute.trait_type)}:{" "}
-                  </span>
-                  <span className="font-bold">{attribute.value}</span>
-                </div>
-              ))}
-          </section>
+          <NFTDescription isLoading={loadingNFTData} nft={nftData} />
           <section className="p4 flex-1">
             {loadingNftContractMetadata ? (
               "Loading..."
@@ -121,7 +92,7 @@ export default function Page({ params: { id } }: Props) {
                       {directListing[0].currencyValuePerToken.symbol}
                     </span>
                   ) : (
-                    <span className="font-3xl font-bold">Not for sale</span>
+                    <span className="font-3xl font-bold">-</span>
                   )}
                 </div>
                 <Web3Button
@@ -133,7 +104,7 @@ export default function Page({ params: { id } }: Props) {
                   }}
                   isDisabled={!directListing || !directListing[0]}
                 >
-                  Buy at asking price
+                  {directListing?.[0] ? "Buy at asking price" : "Not for sale"}
                 </Web3Button>
               </div>
             ) : (
@@ -146,26 +117,4 @@ export default function Page({ params: { id } }: Props) {
       )}
     </div>
   );
-}
-
-function renderDescription(
-  description: string | null | undefined,
-  viewAll: boolean
-): React.ReactNode {
-  if (!description) {
-    return "";
-  }
-  return viewAll ? (
-    <span>{description}</span>
-  ) : (
-    <span>
-      {description.slice(0, 200)}
-      {description.length > 200 ? "..." : ""}
-    </span>
-  );
-}
-
-function removeSnakeCase(text: string): string {
-  const newText = text.split("_").join(" ");
-  return newText.charAt(0).toUpperCase() + newText.slice(1);
 }

@@ -2,7 +2,7 @@
 
 import { useContract, useNFTs } from "@thirdweb-dev/react";
 import { NFT_COLLECTION_ADDRESS } from "@/constants";
-import NftCard from "@/app/nfts/buy/NftCard";
+import NFTGrid from "@/app/nfts/NFTGrid";
 
 export default function NFTBuyPage() {
   const { contract, isLoading: loadingContract } = useContract(
@@ -12,14 +12,10 @@ export default function NFTBuyPage() {
   const { data: nfts, isLoading: loadingNFTs } = useNFTs(contract);
 
   return (
-    <div className="grid grid-cols-4 gap-4 p-4">
-      {loadingContract || loadingNFTs
-        ? "Loading..."
-        : nfts
-        ? nfts.map((nft) => {
-            return <NftCard key={nft.metadata.id} nft={nft} />;
-          })
-        : "-"}
-    </div>
+    <NFTGrid
+      isLoading={loadingContract || loadingNFTs}
+      nfts={nfts}
+      emptyText="No NFTs found"
+    />
   );
 }
