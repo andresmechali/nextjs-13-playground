@@ -43,6 +43,8 @@ export default function SellNFTPage({ params: { id } }: Props) {
   const { data: nftContractMetadata, isLoading: loadingNftContractMetadata } =
     useMetadata(nftCollection);
 
+  console.log(nftContractMetadata);
+
   const { data: nftData, isLoading: loadingNFTData } = useNFT(
     nftCollection,
     id
@@ -54,8 +56,12 @@ export default function SellNFTPage({ params: { id } }: Props) {
       tokenId: id,
     });
 
+  console.log(directListing);
+
   const { mutateAsync: createDirectListing, isLoading: loadingCreateListing } =
     useCreateDirectListing(marketplace);
+
+  const isListed = directListing?.find((listing) => listing.tokenId === id);
 
   async function checkAndProvideApproval() {
     const hasApproval = await nftCollection?.call("isApprovedForAll", [
@@ -76,6 +82,8 @@ export default function SellNFTPage({ params: { id } }: Props) {
 
     return true;
   }
+
+  console.log(isListed);
 
   async function handleSubmissionDirect({
     tokenId,
@@ -99,7 +107,7 @@ export default function SellNFTPage({ params: { id } }: Props) {
   }
 
   const isLoading =
-    loadingMarketplace || loadingNftContractMetadata || loadingDirectListing;
+    loadingMarketplace || loadingDirectListing || loadingCreateListing;
 
   return (
     <div className="p-4">
@@ -109,77 +117,115 @@ export default function SellNFTPage({ params: { id } }: Props) {
         <div className="flex flex-row gap-4">
           <NFTDescription isLoading={loadingNFTData} nft={nftData} />
           <section className="p4 flex flex-1 flex-col space-y-4">
-            <p className="text-3xl">{nftData.metadata.name}</p>
-            <div>
-              <h2>Start: </h2>
-              <DatePicker
-                value={start}
-                onChange={(value) => {
-                  setMissingData(false);
-                  setStart(value);
-                }}
-              />
-            </div>
-            <div>
-              <h2>End: </h2>
-              <DatePicker
-                value={start}
-                onChange={(value) => {
-                  setMissingData(false);
-                  setEnd(value);
-                }}
-              />
-            </div>
-            <div>
-              <h2>Price: </h2>
-              <input
-                type="text"
-                style={{
-                  border: "thin solid gray",
-                }}
-                className="w-[156px]"
-                value={price}
-                onChange={(e) => {
-                  setMissingData(false);
-                  if (!isNaN(Number(e.target.value))) {
-                    setPrice(e.target.value);
-                  }
-                }}
-              />
-            </div>
-            <div>
-              <Web3Button
-                contractAddress={MARKETPLACE_ADDRESS}
-                action={async () => {
-                  if (!id || !price || !start || !end) {
-                    setMissingData(true);
-                    return;
-                  }
-                  setLoadingSubmission(true);
-                  await toast.promise(
-                    handleSubmissionDirect({
-                      tokenId: id,
-                      pricePerToken: price,
-                      startTimestamp: start,
-                      endTimestamp: end,
-                    }),
-                    {
-                      pending: "Listing token...",
-                      success: `Token ${id} listed successfully`,
-                      error:
-                        "There was an error listing the token. Please try again.",
-                    }
-                  );
-                  setLoadingSubmission(false);
+            {loadingNftContractMetadata ? (
+              "Loading..."
+            ) : (
+              <div className="mb-8 flex flex-row items-center space-x-4">
+                {nftContractMetadata?.image && (
+                  <img
+                    src={nftContractMetadata.image}
+                    width={64}
+                    alt={nftContractMetadata.name}
+                  />
+                )}
+                <span className="text-lg font-bold">
+                  {nftContractMetadata?.name}
+                </span>
+              </div>
+            )}
+            <span className="mb-2 text-3xl font-bold">
+              {nftData.metadata.name}
+            </span>
+            <span className="mb-8 text-sm text-gray-500">
+              {nftData.owner.slice(0, 7)}...
+              {nftData.owner.slice(nftData.owner.length - 5)}
+            </span>
+            {isListed ? (
+              <div className="mb-4 rounded-sm border-2 p-4">
+                <h2 className="mb-2 font-light text-gray-500">Price:</h2>
+                {directListing?.[0] ? (
+                  <span className="font-3xl mb-4 font-bold">
+                    {directListing[0].currencyValuePerToken.displayValue}{" "}
+                    {directListing[0].currencyValuePerToken.symbol}
+                  </span>
+                ) : (
+                  <span className="font-3xl font-bold">-</span>
+                )}
+              </div>
+            ) : (
+              <>
+                <div>
+                  <h2>Start: </h2>
+                  <DatePicker
+                    value={start}
+                    onChange={(value) => {
+                      setMissingData(false);
+                      setStart(value);
+                    }}
+                  />
+                </div>
+                <div>
+                  <h2>End: </h2>
+                  <DatePicker
+                    value={start}
+                    onChange={(value) => {
+                      setMissingData(false);
+                      setEnd(value);
+                    }}
+                  />
+                </div>
+                <div>
+                  <h2>Price: </h2>
+                  <input
+                    type="text"
+                    style={{
+                      border: "thin solid gray",
+                    }}
+                    className="w-[156px]"
+                    value={price}
+                    onChange={(e) => {
+                      setMissingData(false);
+                      if (!isNaN(Number(e.target.value))) {
+                        setPrice(e.target.value);
+                      }
+                    }}
+                  />
+                </div>
+                <div>
+                  <Web3Button
+                    contractAddress={MARKETPLACE_ADDRESS}
+                    action={async () => {
+                      if (!id || !price || !start || !end) {
+                        setMissingData(true);
+                        return;
+                      }
+                      setLoadingSubmission(true);
+                      await toast.promise(
+                        handleSubmissionDirect({
+                          tokenId: id,
+                          pricePerToken: price,
+                          startTimestamp: start,
+                          endTimestamp: end,
+                        }),
+                        {
+                          pending: "Listing token...",
+                          success: `Token ${id} listed successfully`,
+                          error:
+                            "There was an error listing the token. Please try again.",
+                        }
+                      );
+                      setLoadingSubmission(false);
 
-                  router.push("/nfts/sell");
-                }}
-                isDisabled={loadingSubmission || !start || !end || !price}
-              >
-                {loadingSubmission ? "Selling..." : "Sell"}
-              </Web3Button>
-            </div>
-            {missingData && <p className="text-red-500">Missing data</p>}
+                      router.push("/nfts/sell");
+                    }}
+                    isDisabled={loadingSubmission || !start || !end || !price}
+                  >
+                    {loadingSubmission ? "Selling..." : "Sell"}
+                  </Web3Button>
+                </div>
+                {missingData && <p className="text-red-500">Missing data</p>}
+              </>
+            )}
           </section>
           <ToastContainer />
         </div>
