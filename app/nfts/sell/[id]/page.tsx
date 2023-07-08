@@ -23,11 +23,12 @@ type Props = {
 };
 
 export default function SellNFTPage({ params: { id } }: Props) {
-  const [start, setStart] = useState(new Date());
-  const [end, setEnd] = useState(
+  const [start, setStart] = useState<Date | null>(new Date());
+  const [end, setEnd] = useState<Date | null>(
     new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1_000)
   );
   const [price, setPrice] = useState<string>("0");
+  const [missingData, setMissingData] = useState<boolean>(false);
   const [loadingSubmission, setLoadingSubmission] = useState<boolean>(false);
 
   const router = useRouter();
@@ -110,11 +111,23 @@ export default function SellNFTPage({ params: { id } }: Props) {
             <p className="text-3xl">{nftData.metadata.name}</p>
             <div>
               <h2>Start: </h2>
-              <DatePicker value={start} onChange={setStart} />
+              <DatePicker
+                value={start}
+                onChange={(value) => {
+                  setMissingData(false);
+                  setStart(value);
+                }}
+              />
             </div>
             <div>
               <h2>End: </h2>
-              <DatePicker value={end} onChange={setEnd} />
+              <DatePicker
+                value={start}
+                onChange={(value) => {
+                  setMissingData(false);
+                  setEnd(value);
+                }}
+              />
             </div>
             <div>
               <h2>Price: </h2>
@@ -126,6 +139,7 @@ export default function SellNFTPage({ params: { id } }: Props) {
                 className="w-[156px]"
                 value={price}
                 onChange={(e) => {
+                  setMissingData(false);
                   if (!isNaN(Number(e.target.value))) {
                     setPrice(e.target.value);
                   }
@@ -136,6 +150,10 @@ export default function SellNFTPage({ params: { id } }: Props) {
               <Web3Button
                 contractAddress={MARKETPLACE_ADDRESS}
                 action={async () => {
+                  if (!id || !price || !start || !end) {
+                    setMissingData(true);
+                    return;
+                  }
                   setLoadingSubmission(true);
                   await handleSubmissionDirect({
                     tokenId: id,
@@ -148,11 +166,12 @@ export default function SellNFTPage({ params: { id } }: Props) {
                   // TODO: show notification
                   router.push("/nfts/sell");
                 }}
-                isDisabled={loadingSubmission}
+                isDisabled={loadingSubmission || !start || !end || !price}
               >
                 {loadingSubmission ? "Selling..." : "Sell"}
               </Web3Button>
             </div>
+            {missingData && <p className="text-red-500">Missing data</p>}
           </section>
         </div>
       ) : (
