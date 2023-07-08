@@ -4,6 +4,7 @@ import React from "react";
 import { Sepolia } from "@thirdweb-dev/chains";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import Header from "@/app/Header";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ContractLayout({
   children,

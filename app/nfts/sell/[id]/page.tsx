@@ -15,6 +15,7 @@ import React, { useState } from "react";
 import NFTDescription from "@/app/nfts/Description";
 import DatePicker from "react-date-picker";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
 
 type Props = {
   params: {
@@ -155,15 +156,22 @@ export default function SellNFTPage({ params: { id } }: Props) {
                     return;
                   }
                   setLoadingSubmission(true);
-                  await handleSubmissionDirect({
-                    tokenId: id,
-                    pricePerToken: price,
-                    startTimestamp: start,
-                    endTimestamp: end,
-                  });
+                  await toast.promise(
+                    handleSubmissionDirect({
+                      tokenId: id,
+                      pricePerToken: price,
+                      startTimestamp: start,
+                      endTimestamp: end,
+                    }),
+                    {
+                      pending: "Listing token...",
+                      success: `Token ${id} listed successfully`,
+                      error:
+                        "There was an error listing the token. Please try again.",
+                    }
+                  );
                   setLoadingSubmission(false);
 
-                  // TODO: show notification
                   router.push("/nfts/sell");
                 }}
                 isDisabled={loadingSubmission || !start || !end || !price}
@@ -173,6 +181,7 @@ export default function SellNFTPage({ params: { id } }: Props) {
             </div>
             {missingData && <p className="text-red-500">Missing data</p>}
           </section>
+          <ToastContainer />
         </div>
       ) : (
         "No NFT"
